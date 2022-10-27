@@ -37,24 +37,23 @@ require('sig-window-nvim').setup({
 
 Additionally, the configuration can contain a function that accepts five arguments:
 
-1. The string to be displayed in the signature window
-2. The configuration table specified above, plus its default values.
-3. A ui object, see [`:help nvim_list_uis`](https://neovim.io/doc/user/api.html#nvim_list_uis())
-4. Width, suggested width based on the signature length and max_width/max_height
-5. Height, suggested height based on the signature length and max_width/max_height
+1. label: string to be displayed in the signature window
+2. config: configuration table passed to setup, plus omitted default values
+3. width: suggested width based on label length and max_width/max_height
+4. height: suggested height based on label length and max_width/max_height
 
 The expected return value is a table that will be passed to [nvim_open_win](https://neovim.io/doc/user/api.html#nvim_open_win()) as its configuration. See [`:help nvim_open_win`](https://neovim.io/doc/user/api.html#nvim_open_win()) for more details. The example below displays the default behavior:
 
 ```lua
 require('sig-window-nvim').setup({
-  window_config = function(label, config, ui, width, height)
+  window_config = function(label, config, width, height)
     return {
       relative = 'editor',
       anchor = 'NE',
       width = width,
       height = height,
       row = 0,
-      col = ui.width,
+      col = vim.api.nvim_win_get_width(0),
       focusable = false,
       zindex = config.zindex,
       style = 'minimal',
