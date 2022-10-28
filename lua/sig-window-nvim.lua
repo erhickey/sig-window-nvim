@@ -95,7 +95,7 @@ module = {
     max_width = 80,
     max_height = 5,
     hl_active_param = true,
-    hl_group = 'rainbowcol4',
+    hl_group = 'DiagnosticWarn',
   },
   config = {},
   previous_label = '',
