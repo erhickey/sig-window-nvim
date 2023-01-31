@@ -106,7 +106,7 @@ module = {
 }
 
 function module.signature_help_handler(_, result, _, config)
-  if result and result.signatures and result.signatures[1] then
+  if result and result.signatures and result.signatures[1] and vim.fn.mode() == 'i' then
     local label, _, active_ix_start, active_ix_end = parse_signature_help_result(result)
     if label ~= module.previous_label or not module.is_open then
       module.previous_label = label
