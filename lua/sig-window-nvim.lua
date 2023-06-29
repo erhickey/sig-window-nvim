@@ -81,6 +81,7 @@ local function show_signature_window(label, active_ix_start, active_ix_end, conf
 
   vim.api.nvim_win_set_option(winnr, 'wrap', true)
   vim.api.nvim_win_set_option(winnr, 'foldenable', false)
+  vim.api.nvim_buf_set_option(w_bufnr, 'filetype', vim.bo[bufnr].filetype)
   vim.api.nvim_buf_set_option(w_bufnr, 'modifiable', false)
   vim.api.nvim_buf_set_option(w_bufnr, 'bufhidden', 'wipe')
   vim.api.nvim_buf_set_var(bufnr, 'sig-window-nvim', winnr)
