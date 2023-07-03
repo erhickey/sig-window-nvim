@@ -16,10 +16,17 @@ local function get_active_param_indices(active_param_ix, params, label)
 end
 
 local function parse_signature_help_result(lsp_result)
-  local sig = lsp_result.signatures[(lsp_result.activeSignature or 0) + 1]
+  local sig_idx = (lsp_result.activeSignature or 0) + 1
+  local sig = lsp_result.signatures[sig_idx]
   local active_param = sig.activeParameter or lsp_result.activeParameter
   local active_ix_start, active_ix_end = get_active_param_indices(active_param, sig.parameters, sig.label)
-  return sig.label, sig.parameters, active_ix_start, active_ix_end
+  local other_labels = {}
+  for i, sigx in ipairs(lsp_result.signatures) do
+      if i ~= sig_idx then
+          table.insert(other_labels, sigx.label)
+      end
+  end
+  return sig.label, sig.parameters, active_ix_start, active_ix_end, other_labels
 end
 
 local function highlight_text(bufnr, start_ix, end_ix, highlight_group)
@@ -29,7 +36,9 @@ local function highlight_text(bufnr, start_ix, end_ix, highlight_group)
   end
 end
 
-local function calc_window_dimensions(text, max_width, max_height)
+local function calc_window_dimensions(lines, max_width, max_height)
+  text = table.concat(lines, "\n")
+
   local length = string.len(text)
   if length <= max_width then
     return length, 1
@@ -69,13 +78,16 @@ local function close_signature_window(bufnr)
   end
 end
 
-local function show_signature_window(label, active_ix_start, active_ix_end, config)
+local function show_signature_window(label, active_ix_start, active_ix_end, config, other_labels)
   local bufnr = vim.api.nvim_get_current_buf()
   local w_bufnr = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_buf_set_lines(w_bufnr, 0, -1, true, {label})
+
+  table.insert(other_labels, 1, label)  -- put activeSignature label the first line
+  vim.api.nvim_buf_set_lines(w_bufnr, 0, -1, true, other_labels)
   highlight_text(w_bufnr, active_ix_start, active_ix_end, config.hl_group)
 
-  local width, height = calc_window_dimensions(label, config.max_width, config.max_height)
+  local lines = other_labels
+  local width, height = calc_window_dimensions(lines, config.max_width, config.max_height)
   local winnr = vim.api.nvim_open_win(w_bufnr, false, window_config(label, config, width, height))
   close_signature_window(bufnr)
 
@@ -108,12 +120,12 @@ module = {
 
 function module.signature_help_handler(_, result, _, config)
   if result and result.signatures and result.signatures[1] and vim.fn.mode() == 'i' then
-    local label, _, active_ix_start, active_ix_end = parse_signature_help_result(result)
+    local label, _, active_ix_start, active_ix_end, other_labels = parse_signature_help_result(result)
     if label ~= module.previous_label or not module.is_open then
       module.previous_label = label
       module.previous_active_ix_start = active_ix_start
       module.previous_active_ix_end = active_ix_end
-      module.window_bufnr = show_signature_window(label, active_ix_start, active_ix_end, config)
+      module.window_bufnr = show_signature_window(label, active_ix_start, active_ix_end, config, other_labels)
       module.is_open = true
     elseif active_ix_start ~= module.previous_active_ix_start or active_ix_end ~= module.previous_active_ix_end then
       module.previous_active_ix_start = active_ix_start
