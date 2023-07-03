@@ -41,12 +41,13 @@ Additionally, the configuration can contain a function that accepts five argumen
 2. config: configuration table passed to setup, plus omitted default values
 3. width: suggested width based on label length and max_width/max_height
 4. height: suggested height based on label length and max_width/max_height
+5. other_labels: overloaded function signatures that aren't the active signature
 
 The expected return value is a table that will be passed to [nvim_open_win](https://neovim.io/doc/user/api.html#nvim_open_win()) as its configuration. See [`:help nvim_open_win`](https://neovim.io/doc/user/api.html#nvim_open_win()) for more details. The example below displays the default behavior:
 
 ```lua
 require('sig-window-nvim').setup({
-  window_config = function(label, config, width, height)
+  window_config = function(label, config, width, height, other_labels)
     return {
       relative = 'editor',
       anchor = 'NE',

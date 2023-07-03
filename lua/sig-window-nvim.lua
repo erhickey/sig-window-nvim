@@ -52,9 +52,9 @@ local function calc_window_dimensions(lines, max_width, max_height)
   return max_width, height
 end
 
-local function window_config(label, config, width, height)
+local function window_config(label, config, width, height, other_labels)
     if config.window_config then
-      return config.window_config(label, config, width, height)
+      return config.window_config(label, config, width, height, other_labels)
     end
 
     return {
@@ -88,7 +88,7 @@ local function show_signature_window(label, active_ix_start, active_ix_end, conf
 
   local lines = other_labels
   local width, height = calc_window_dimensions(lines, config.max_width, config.max_height)
-  local winnr = vim.api.nvim_open_win(w_bufnr, false, window_config(label, config, width, height))
+  local winnr = vim.api.nvim_open_win(w_bufnr, false, window_config(label, config, width, height, other_labels))
   close_signature_window(bufnr)
 
   vim.api.nvim_win_set_option(winnr, 'wrap', true)
