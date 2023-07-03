@@ -82,12 +82,15 @@ local function show_signature_window(label, active_ix_start, active_ix_end, conf
   local bufnr = vim.api.nvim_get_current_buf()
   local w_bufnr = vim.api.nvim_create_buf(false, true)
 
-  table.insert(other_labels, 1, label)  -- put activeSignature label the first line
-  vim.api.nvim_buf_set_lines(w_bufnr, 0, -1, true, other_labels)
+  local all_labels = {label}
+  for i, v in ipairs(other_labels) do
+    all_labels[i + 1] = v
+  end
+
+  vim.api.nvim_buf_set_lines(w_bufnr, 0, -1, true, all_labels)
   highlight_text(w_bufnr, active_ix_start, active_ix_end, config.hl_group)
 
-  local lines = other_labels
-  local width, height = calc_window_dimensions(lines, config.max_width, config.max_height)
+  local width, height = calc_window_dimensions(all_labels, config.max_width, config.max_height)
   local winnr = vim.api.nvim_open_win(w_bufnr, false, window_config(label, config, width, height, other_labels))
   close_signature_window(bufnr)
 
