@@ -36,20 +36,19 @@ local function highlight_text(bufnr, start_ix, end_ix, highlight_group)
   end
 end
 
-local function calc_window_dimensions(lines, max_width, max_height)
-  text = table.concat(lines, "\n")
+local function calc_window_dimensions(labels, max_width, max_height)
+  local widths = {}
+  for _, v in pairs(labels) do
+    table.insert(widths, string.len(v))
+  end
+  local width = math.min(max_width, math.max(unpack(widths)))
 
-  local length = string.len(text)
-  if length <= max_width then
-    return length, 1
+  local height = 0
+  for _, v in pairs(labels) do
+    height = height + math.ceil(string.len(v) / width)
   end
 
-  local height = math.ceil(length / max_width)
-  if height > max_height then
-    return max_width, max_height
-  end
-
-  return max_width, height
+  return width, math.min(height, max_height)
 end
 
 local function window_config(label, config, width, height, other_labels)
